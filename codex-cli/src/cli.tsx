@@ -81,6 +81,7 @@ const cli = meow(
     --history                       Browse previous sessions
     --login                         Start a new sign in flow
     --free                          Retry redeeming free credits
+    --guidance <text>               Additional instructions for this session
     -q, --quiet                     Non-interactive mode that only prints the assistant's final output
     -c, --config                    Open the instructions file in your editor
     -w, --writable-root <path>      Writable folder for sandbox in full-auto mode (can be specified multiple times)
@@ -128,6 +129,10 @@ const cli = meow(
       history: { type: "boolean", description: "Browse previous sessions" },
       login: { type: "boolean", description: "Force a new sign in flow" },
       free: { type: "boolean", description: "Retry redeeming free credits" },
+      guidance: {
+        type: "string",
+        description: "Additional instructions for this session",
+      },
       model: { type: "string", aliases: ["m"] },
       provider: { type: "string", aliases: ["p"] },
       image: { type: "string", isMultiple: true, aliases: ["i"] },
@@ -284,6 +289,15 @@ let config = loadConfig(undefined, undefined, {
   projectDocPath: cli.flags.projectDoc,
   isFullContext: fullContextMode,
 });
+
+if (cli.flags.guidance) {
+  config = {
+    ...config,
+    instructions: [config.instructions, cli.flags.guidance]
+      .filter(Boolean)
+      .join("\n"),
+  };
+}
 
 // `prompt` can be updated later when the user resumes a previous session
 // via the `--history` flag. Therefore it must be declared with `let` rather
