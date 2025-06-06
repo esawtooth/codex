@@ -98,11 +98,6 @@ const ERROR_WHEN_LANDLOCK_NOT_SUPPORTED = `\
 The combination of seccomp/landlock that Codex uses for sandboxing is not
 supported in this environment.
 
-If you are running in a Docker container, you may want to try adding
-restrictions to your Docker container such that it provides your desired
-sandboxing guarantees and then run Codex with the
---dangerously-auto-approve-everything option inside the container.
-
 If you are running on an older Linux kernel that does not support newer
 features of seccomp/landlock, you will have to update your kernel to a newer
 version.
@@ -112,10 +107,7 @@ version.
  * Now that we have the path to the executable, make sure that it works in
  * this environment. For example, when running a Linux Docker container from
  * macOS like so:
- *
- * docker run -it alpine:latest /bin/sh
- *
- * Running `codex-linux-sandbox-x64 -- true` in the container fails with:
+ * Running `codex-linux-sandbox-x64 -- true` on certain systems may fail with:
  *
  * ```
  * Error: sandbox error: seccomp setup error

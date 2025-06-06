@@ -190,10 +190,8 @@ The hardening mechanism Conseil uses depends on your OS:
     writable roots (`$PWD`, `$TMPDIR`, `~/.conseil`, etc.).
   - Outbound network is allowed by default.
 
-- **Linux** - there is no sandboxing by default.
-  We recommend using Docker for sandboxing, where Conseil launches itself inside a **minimal
-  container image** and mounts your repo _read/write_ at the same path. A
-  You can use the [`run_in_container.sh`](./conseil-cli/scripts/run_in_container.sh) script to set up a Docker container for isolation. Network access is unrestricted.
+- **Linux** - there is no sandboxing by default. This distribution assumes Codex
+  already runs inside a container, so no additional Docker wrapper is required.
 
 ---
 

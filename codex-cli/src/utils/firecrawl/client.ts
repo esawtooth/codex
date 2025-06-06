@@ -18,6 +18,9 @@ async function firecrawlRequest(endpoint: string, body: unknown) {
   if (!res.ok) {
     throw new Error(`Firecrawl request failed with status ${res.status}`);
   }
+  // The Firecrawl response shape is not currently typed
+  // and can vary between endpoints.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (await res.json()) as any;
 }
 
