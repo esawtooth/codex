@@ -20,9 +20,9 @@ import {
   getBaseUrl,
   AZURE_OPENAI_API_VERSION,
 } from "../config.js";
+import { getUrlContent, searchWeb } from "../firecrawl/client.js";
 import { log } from "../logger/log.js";
 import { parseToolCallArguments } from "../parsers.js";
-import { getUrlContent, searchWeb } from "../firecrawl/client.js";
 import { responsesCreateViaChatCompletions } from "../responses.js";
 import {
   ORIGIN,
