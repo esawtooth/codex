@@ -22,6 +22,7 @@ import {
 } from "../config.js";
 import { log } from "../logger/log.js";
 import { parseToolCallArguments } from "../parsers.js";
+import { getUrlContent, searchWeb } from "../firecrawl/client.js";
 import { responsesCreateViaChatCompletions } from "../responses.js";
 import {
   ORIGIN,
@@ -111,6 +112,40 @@ const shellFunctionTool: FunctionTool = {
 const localShellTool: Tool = {
   //@ts-expect-error - waiting on sdk
   type: "local_shell",
+};
+
+const webSearchTool: FunctionTool = {
+  type: "function",
+  name: "web_search",
+  description: "Search the web and return results.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      query: { type: "string", description: "Search query" },
+      limit: {
+        type: "number",
+        description: "Maximum number of results",
+      },
+    },
+    required: ["query"],
+    additionalProperties: false,
+  },
+};
+
+const getUrlTool: FunctionTool = {
+  type: "function",
+  name: "get_url",
+  description: "Fetch a URL and return its content as markdown.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      url: { type: "string", description: "URL to fetch" },
+    },
+    required: ["url"],
+    additionalProperties: false,
+  },
 };
 
 export class AgentLoop {
@@ -405,6 +440,12 @@ export class AgentLoop {
     const callId: string = (item as any).call_id ?? (item as any).id;
 
     const args = parseToolCallArguments(rawArguments ?? "{}");
+    let jsonArgs: Record<string, unknown> = {};
+    try {
+      jsonArgs = JSON.parse(rawArguments ?? "{}");
+    } catch {
+      jsonArgs = {};
+    }
     log(
       `handleFunctionCall(): name=${
         name ?? "undefined"
@@ -443,7 +484,36 @@ export class AgentLoop {
     const additionalItems: Array<ResponseInputItem> = [];
 
     // TODO: allow arbitrary function calls (beyond shell/container.exec)
-    if (name === "container.exec" || name === "shell") {
+    if (name === "web_search") {
+      try {
+        const results = await searchWeb(String(jsonArgs.query || ""), Number(jsonArgs.limit) || 5);
+        const formatted = results
+          .map((r, i) => `${i + 1}. ${r.title}\n${r.url}\n${r.description}`)
+          .join("\n\n");
+        outputItem.output = JSON.stringify({
+          output: formatted,
+          metadata: { exit_code: 0, duration_seconds: 0 },
+        });
+      } catch (err) {
+        outputItem.output = JSON.stringify({
+          output: String(err instanceof Error ? err.message : err),
+          metadata: { exit_code: 1, duration_seconds: 0 },
+        });
+      }
+    } else if (name === "get_url") {
+      try {
+        const content = await getUrlContent(String(jsonArgs.url || ""));
+        outputItem.output = JSON.stringify({
+          output: content,
+          metadata: { exit_code: 0, duration_seconds: 0 },
+        });
+      } catch (err) {
+        outputItem.output = JSON.stringify({
+          output: String(err instanceof Error ? err.message : err),
+          metadata: { exit_code: 1, duration_seconds: 0 },
+        });
+      }
+    } else if (name === "container.exec" || name === "shell") {
       const {
         outputText,
         metadata,
@@ -617,9 +687,9 @@ export class AgentLoop {
       // `disableResponseStorage === true`.
       let transcriptPrefixLen = 0;
 
-      let tools: Array<Tool> = [shellFunctionTool];
+      let tools: Array<Tool> = [shellFunctionTool, webSearchTool, getUrlTool];
       if (this.model.startsWith("codex")) {
-        tools = [localShellTool];
+        tools = [localShellTool, webSearchTool, getUrlTool];
       }
 
       const stripInternalFields = (
@@ -1638,7 +1708,7 @@ You MUST adhere to the following criteria when executing the task:
             - Ignore unrelated bugs or broken tests; it is not your responsibility to fix them.
         - Update documentation as necessary.
         - Keep changes consistent with the style of the existing codebase. Changes should be minimal and focused on the task.
-            - Use \`git log\` and \`git blame\` to search the history of the codebase if additional context is required; internet access is disabled.
+            - Use \`git log\` and \`git blame\` to search the history of the codebase if additional context is required. Internet access is available via the \`web_search\` and \`get_url\` tools.
         - NEVER add copyright or license headers unless specifically requested.
         - You do not need to \`git commit\` your changes; this will be done automatically for you.
         - If there is a .pre-commit-config.yaml, use \`pre-commit run --files ...\` to check that your changes pass the pre-commit checks. However, do not fix pre-existing errors on lines you didn't touch.
