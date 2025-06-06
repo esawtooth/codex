@@ -1,9 +1,9 @@
-<h1 align="center">OpenAI Codex CLI</h1>
+<h1 align="center">OpenAI Conseil CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>npm i -g @openai/codex</code></p>
+<p align="center"><code>npm i -g @openai/conseil</code></p>
 
-![Codex demo GIF using: codex "explain this codebase to me"](./.github/demo.gif)
+![Conseil demo GIF using: conseil "explain this codebase to me"](./.github/demo.gif)
 
 ---
 
@@ -14,7 +14,7 @@
 
 - [Experimental technology disclaimer](#experimental-technology-disclaimer)
 - [Quickstart](#quickstart)
-- [Why Codex?](#why-codex)
+- [Why Conseil?](#why-conseil)
 - [Security model & permissions](#security-model--permissions)
   - [Platform sandboxing details](#platform-sandboxing-details)
 - [System requirements](#system-requirements)
@@ -34,7 +34,7 @@
   - [Environment variables setup](#environment-variables-setup)
 - [FAQ](#faq)
 - [Zero data retention (ZDR) usage](#zero-data-retention-zdr-usage)
-- [Codex open source fund](#codex-open-source-fund)
+- [Conseil open source fund](#conseil-open-source-fund)
 - [Contributing](#contributing)
   - [Development workflow](#development-workflow)
   - [Git hooks with Husky](#git-hooks-with-husky)
@@ -46,7 +46,7 @@
   - [Getting help](#getting-help)
   - [Contributor license agreement (CLA)](#contributor-license-agreement-cla)
     - [Quick fixes](#quick-fixes)
-  - [Releasing `codex`](#releasing-codex)
+  - [Releasing `conseil`](#releasing-conseil)
   - [Alternative build options](#alternative-build-options)
     - [Nix flake development](#nix-flake-development)
 - [Security & responsible AI](#security--responsible-ai)
@@ -60,7 +60,7 @@
 
 ## Experimental technology disclaimer
 
-Codex CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
+Conseil CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
 
 - Bug reports
 - Feature requests
@@ -74,7 +74,7 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-npm install -g @openai/codex
+npm install -g @openai/conseil
 ```
 
 Next, set your OpenAI API key as an environment variable:
@@ -94,7 +94,7 @@ export OPENAI_API_KEY="your-api-key-here"
 <details>
 <summary><strong>Use <code>--provider</code> to use other models</strong></summary>
 
-> Codex also allows you to use other providers that support the OpenAI Chat Completions API. You can set the provider in the config file or use the `--provider` flag. The possible options for `--provider` are:
+> Conseil also allows you to use other providers that support the OpenAI Chat Completions API. You can set the provider in the config file or use the `--provider` flag. The possible options for `--provider` are:
 >
 > - openai (default)
 > - openrouter
@@ -126,28 +126,28 @@ export OPENAI_API_KEY="your-api-key-here"
 Run interactively:
 
 ```shell
-codex
+conseil
 ```
 
 Or, run with a prompt as input (and optionally in `Full Auto` mode):
 
 ```shell
-codex "explain this codebase to me"
+conseil "explain this codebase to me"
 ```
 
 ```shell
-codex --approval-mode full-auto "create the fanciest todo-list app"
+conseil --approval-mode full-auto "create the fanciest todo-list app"
 ```
 
-That's it - Codex will scaffold a file, run it inside a sandbox, install any
+That's it - Conseil will scaffold a file, run it inside a sandbox, install any
 missing dependencies, and show you the live result. Approve the changes and
 they'll be committed to your working directory.
 
 ---
 
-## Why Codex?
+## Why Conseil?
 
-Codex CLI is built for developers who already **live in the terminal** and want
+Conseil CLI is built for developers who already **live in the terminal** and want
 ChatGPT-level reasoning **plus** the power to actually run code, manipulate
 files, and iterate - all under version control. In short, it's _chat-driven
 development_ that understands and executes your repo.
@@ -162,7 +162,7 @@ And it's **fully open-source** so you can see and contribute to how it develops!
 
 ## Security model & permissions
 
-Codex lets you decide _how much autonomy_ the agent receives and auto-approval policy via the
+Conseil lets you decide _how much autonomy_ the agent receives and auto-approval policy via the
 `--approval-mode` flag (or the interactive onboarding prompt):
 
 | Mode                      | What the agent may do without asking                                                                | Still requires approval                                                                         |
@@ -172,7 +172,7 @@ Codex lets you decide _how much autonomy_ the agent receives and auto-approval p
 | **Full Auto**             | <li>Read/write files <li> Execute shell commands (writes limited to your workdir) | -                                                                                               |
 
 In **Full Auto** every command runs with network access and is confined to the
-current working directory (plus temporary files) for defense-in-depth. Codex
+current working directory (plus temporary files) for defense-in-depth. Conseil
 will also show a warning/confirmation if you start in **auto-edit** or
 **full-auto** while the directory is _not_ tracked by Git, so you always have a
 safety net.
@@ -182,12 +182,12 @@ we're confident in additional safeguards.
 
 ### Platform sandboxing details
 
-The hardening mechanism Codex uses depends on your OS:
+The hardening mechanism Conseil uses depends on your OS:
 
 - **macOS 12+** - commands are wrapped with **Apple Seatbelt** (`sandbox-exec`).
 
   - Everything is placed in a read-only jail except for a small set of
-    writable roots (`$PWD`, `$TMPDIR`, `~/.codex`, etc.).
+    writable roots (`$PWD`, `$TMPDIR`, `~/.conseil`, etc.).
   - Outbound network is allowed by default.
 
 - **Linux** - there is no sandboxing by default. This distribution assumes Codex
@@ -212,10 +212,10 @@ The hardening mechanism Codex uses depends on your OS:
 
 | Command                              | Purpose                             | Example                              |
 | ------------------------------------ | ----------------------------------- | ------------------------------------ |
-| `codex`                              | Interactive REPL                    | `codex`                              |
-| `codex "..."`                        | Initial prompt for interactive REPL | `codex "fix lint errors"`            |
-| `codex -q "..."`                     | Non-interactive "quiet mode"        | `codex -q --json "explain utils.ts"` |
-| `codex completion <bash\|zsh\|fish>` | Print shell completion script       | `codex completion bash`              |
+| `conseil`                              | Interactive REPL                    | `conseil`                              |
+| `conseil "..."`                        | Initial prompt for interactive REPL | `conseil "fix lint errors"`            |
+| `conseil -q "..."`                     | Non-interactive "quiet mode"        | `conseil -q --json "explain utils.ts"` |
+| `conseil completion <bash\|zsh\|fish>` | Print shell completion script       | `conseil completion bash`              |
 
 Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
 
@@ -223,9 +223,9 @@ Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
 
 ## Memory & project docs
 
-You can give Codex extra instructions and guidance using `AGENTS.md` files. Codex looks for `AGENTS.md` files in the following places, and merges them top-down:
+You can give Conseil extra instructions and guidance using `AGENTS.md` files. Conseil looks for `AGENTS.md` files in the following places, and merges them top-down:
 
-1. `~/.codex/AGENTS.md` - personal global guidance
+1. `~/.conseil/AGENTS.md` - personal global guidance
 2. `AGENTS.md` at repo root - shared project notes
 3. `AGENTS.md` in the current working directory - sub-folder/feature specifics
 
@@ -235,14 +235,14 @@ Disable loading of these files with `--no-project-doc` or the environment variab
 
 ## Non-interactive / CI mode
 
-Run Codex head-less in pipelines. Example GitHub Action step:
+Run Conseil head-less in pipelines. Example GitHub Action step:
 
 ```yaml
-- name: Update changelog via Codex
+- name: Update changelog via Conseil
   run: |
-    npm install -g @openai/codex
+    npm install -g @openai/conseil
     export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
-    codex -a auto-edit --quiet "update CHANGELOG for next release"
+    conseil -a auto-edit --quiet "update CHANGELOG for next release"
 ```
 
 Set `CODEX_QUIET_MODE=1` to silence interactive UI noise.
@@ -252,24 +252,24 @@ Set `CODEX_QUIET_MODE=1` to silence interactive UI noise.
 Setting the environment variable `DEBUG=true` prints full API request and response details:
 
 ```shell
-DEBUG=true codex
+DEBUG=true conseil
 ```
 
 ---
 
 ## Recipes
 
-Below are a few bite-size examples you can copy-paste. Replace the text in quotes with your own task. See the [prompting guide](https://github.com/openai/codex/blob/main/codex-cli/examples/prompting_guide.md) for more tips and usage patterns.
+Below are a few bite-size examples you can copy-paste. Replace the text in quotes with your own task. See the [prompting guide](https://github.com/openai/conseil/blob/main/conseil-cli/examples/prompting_guide.md) for more tips and usage patterns.
 
 | ✨  | What you type                                                                   | What happens                                                               |
 | --- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 1   | `codex "Refactor the Dashboard component to React Hooks"`                       | Codex rewrites the class component, runs `npm test`, and shows the diff.   |
-| 2   | `codex "Generate SQL migrations for adding a users table"`                      | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
-| 3   | `codex "Write unit tests for utils/date.ts"`                                    | Generates tests, executes them, and iterates until they pass.              |
-| 4   | `codex "Bulk-rename *.jpeg -> *.jpg with git mv"`                               | Safely renames files and updates imports/usages.                           |
-| 5   | `codex "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                      | Outputs a step-by-step human explanation.                                  |
-| 6   | `codex "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
-| 7   | `codex "Look for vulnerabilities and create a security review report"`          | Finds and explains security bugs.                                          |
+| 1   | `conseil "Refactor the Dashboard component to React Hooks"`                       | Conseil rewrites the class component, runs `npm test`, and shows the diff.   |
+| 2   | `conseil "Generate SQL migrations for adding a users table"`                      | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
+| 3   | `conseil "Write unit tests for utils/date.ts"`                                    | Generates tests, executes them, and iterates until they pass.              |
+| 4   | `conseil "Bulk-rename *.jpeg -> *.jpg with git mv"`                               | Safely renames files and updates imports/usages.                           |
+| 5   | `conseil "Explain what this regex does: ^(?=.*[A-Z]).{8,}$"`                      | Outputs a step-by-step human explanation.                                  |
+| 6   | `conseil "Carefully review this repo, and propose 3 high impact well-scoped PRs"` | Suggests impactful PRs in the current codebase.                            |
+| 7   | `conseil "Look for vulnerabilities and create a security review report"`          | Finds and explains security bugs.                                          |
 
 ---
 
@@ -279,13 +279,13 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 <summary><strong>From npm (Recommended)</strong></summary>
 
 ```bash
-npm install -g @openai/codex
+npm install -g @openai/conseil
 # or
-yarn global add @openai/codex
+yarn global add @openai/conseil
 # or
-bun install -g @openai/codex
+bun install -g @openai/conseil
 # or
-pnpm add -g @openai/codex
+pnpm add -g @openai/conseil
 ```
 
 </details>
@@ -295,8 +295,8 @@ pnpm add -g @openai/codex
 
 ```bash
 # Clone the repository and navigate to the CLI package
-git clone https://github.com/openai/codex.git
-cd codex/codex-cli
+git clone https://github.com/openai/conseil.git
+cd conseil/conseil-cli
 
 # Enable corepack
 corepack enable
@@ -324,7 +324,7 @@ pnpm link
 
 ## Configuration guide
 
-Codex configuration files can be placed in the `~/.codex/` directory, supporting both YAML and JSON formats.
+Conseil configuration files can be placed in the `~/.conseil/` directory, supporting both YAML and JSON formats.
 
 ### Basic configuration parameters
 
@@ -357,7 +357,7 @@ In the `history` object, you can configure conversation history settings:
 
 ### Configuration examples
 
-1. YAML format (save as `~/.codex/config.yaml`):
+1. YAML format (save as `~/.conseil/config.yaml`):
 
 ```yaml
 model: o4-mini
@@ -366,7 +366,7 @@ fullAutoErrorMode: ask-user
 notify: true
 ```
 
-2. JSON format (save as `~/.codex/config.json`):
+2. JSON format (save as `~/.conseil/config.json`):
 
 ```json
 {
@@ -447,7 +447,7 @@ Below is a comprehensive example of `config.json` with multiple custom providers
 
 ### Custom instructions
 
-You can create a `~/.codex/AGENTS.md` file to define custom guidance for the agent:
+You can create a `~/.conseil/AGENTS.md` file to define custom guidance for the agent:
 
 ```markdown
 - Always respond with emojis
@@ -477,9 +477,9 @@ export OPENROUTER_API_KEY="your-openrouter-key-here"
 ## FAQ
 
 <details>
-<summary>OpenAI released a model called Codex in 2021 - is this related?</summary>
+<summary>OpenAI released a model called Conseil in 2021 - is this related?</summary>
 
-In 2021, OpenAI released Codex, an AI system designed to generate code from natural language prompts. That original Codex model was deprecated as of March 2023 and is separate from the CLI tool.
+In 2021, OpenAI released Conseil, an AI system designed to generate code from natural language prompts. That original Conseil model was deprecated as of March 2023 and is separate from the CLI tool.
 
 </details>
 
@@ -497,15 +497,15 @@ It's possible that your [API account needs to be verified](https://help.openai.c
 </details>
 
 <details>
-<summary>How do I stop Codex from editing my files?</summary>
+<summary>How do I stop Conseil from editing my files?</summary>
 
-Codex runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
+Conseil runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
 
 </details>
 <details>
 <summary>Does it work on Windows?</summary>
 
-Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Codex has been tested on macOS and Linux with Node 22.
+Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Conseil has been tested on macOS and Linux with Node 22.
 
 </details>
 
@@ -513,24 +513,24 @@ Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.mic
 
 ## Zero data retention (ZDR) usage
 
-Codex CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your OpenAI organization has Zero Data Retention enabled and you still encounter errors such as:
+Conseil CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your OpenAI organization has Zero Data Retention enabled and you still encounter errors such as:
 
 ```
 OpenAI rejected the request. Error details: Status: 400, Code: unsupported_parameter, Type: invalid_request_error, Message: 400 Previous response cannot be used for this organization due to Zero Data Retention.
 ```
 
-You may need to upgrade to a more recent version with: `npm i -g @openai/codex@latest`
+You may need to upgrade to a more recent version with: `npm i -g @openai/conseil@latest`
 
 ---
 
-## Codex open source fund
+## Conseil open source fund
 
-We're excited to launch a **$1 million initiative** supporting open source projects that use Codex CLI and other OpenAI models.
+We're excited to launch a **$1 million initiative** supporting open source projects that use Conseil CLI and other OpenAI models.
 
 - Grants are awarded up to **$25,000** API credits.
 - Applications are reviewed **on a rolling basis**.
 
-**Interested? [Apply here](https://openai.com/form/codex-open-source-fund/).**
+**Interested? [Apply here](https://openai.com/form/conseil-open-source-fund/).**
 
 ---
 
@@ -555,7 +555,7 @@ This project uses [Husky](https://typicode.github.io/husky/) to enforce code qua
 - **Pre-commit hook**: Automatically runs lint-staged to format and lint files before committing
 - **Pre-push hook**: Runs tests and type checking before pushing to the remote
 
-These hooks help maintain code quality and prevent pushing code with failing tests. For more details, see [HUSKY.md](./codex-cli/HUSKY.md).
+These hooks help maintain code quality and prevent pushing code with failing tests. For more details, see [HUSKY.md](./conseil-cli/HUSKY.md).
 
 ```bash
 pnpm test && pnpm run lint && pnpm run typecheck
@@ -583,7 +583,7 @@ pnpm format:fix
 
 ### Debugging
 
-To debug the CLI with a visual debugger, do the following in the `codex-cli` folder:
+To debug the CLI with a visual debugger, do the following in the `conseil-cli` folder:
 
 - Run `pnpm run build` to build the CLI, which will generate `cli.js.map` alongside `cli.js` in the `dist` folder.
 - Run the CLI with `node --inspect-brk ./dist/cli.js` The program then waits until a debugger is attached before proceeding. Options:
@@ -594,7 +594,7 @@ To debug the CLI with a visual debugger, do the following in the `codex-cli` fol
 
 1. **Start with an issue.** Open a new one or comment on an existing discussion so we can agree on the solution before code is written.
 2. **Add or update tests.** Every new feature or bug-fix should come with test coverage that fails before your change and passes afterwards. 100% coverage is not required, but aim for meaningful assertions.
-3. **Document behaviour.** If your change affects user-facing behaviour, update the README, inline help (`codex --help`), or relevant example projects.
+3. **Document behaviour.** If your change affects user-facing behaviour, update the README, inline help (`conseil --help`), or relevant example projects.
 4. **Keep commits atomic.** Each commit should compile and the tests should pass. This makes reviews and potential rollbacks easier.
 
 ### Opening a pull request
@@ -620,7 +620,7 @@ To debug the CLI with a visual debugger, do the following in the `codex-cli` fol
 
 If you run into problems setting up the project, would like feedback on an idea, or just want to say _hi_ - please open a Discussion or jump into the relevant issue. We are happy to help.
 
-Together we can make Codex CLI an incredible tool. **Happy hacking!** :rocket:
+Together we can make Conseil CLI an incredible tool. **Happy hacking!** :rocket:
 
 ### Contributor license agreement (CLA)
 
@@ -645,11 +645,11 @@ No special Git commands, email attachments, or commit footers required.
 
 The **DCO check** blocks merges until every commit in the PR carries the footer (with squash this is just the one).
 
-### Releasing `codex`
+### Releasing `conseil`
 
 To publish a new version of the CLI you first need to stage the npm package. A
-helper script in `codex-cli/scripts/` does all the heavy lifting. Inside the
-`codex-cli` folder run:
+helper script in `conseil-cli/scripts/` does all the heavy lifting. Inside the
+`conseil-cli` folder run:
 
 ```bash
 # Classic, JS implementation that includes small, native binaries for Linux sandboxing.
@@ -680,23 +680,23 @@ Prerequisite: Nix >= 2.4 with flakes enabled (`experimental-features = nix-comma
 Enter a Nix development shell:
 
 ```bash
-# Enter the Codex CLI shell
-nix develop .#codex-cli
+# Enter the Conseil CLI shell
+nix develop .#conseil-cli
 ```
 
-This shell includes Node.js, installs dependencies, builds the CLI, and provides a `codex` command alias.
+This shell includes Node.js, installs dependencies, builds the CLI, and provides a `conseil` command alias.
 
 Build and run the CLI directly:
 
 ```bash
-nix build .#codex-cli
-./result/bin/codex --help
+nix build .#conseil-cli
+./result/bin/conseil --help
 ```
 
 Run the CLI via the flake app:
 
 ```bash
-nix run .#codex-cli
+nix run .#conseil-cli
 ```
 
 Use direnv with flakes
@@ -704,8 +704,8 @@ Use direnv with flakes
 If you have direnv installed, you can use the following `.envrc` to automatically enter the Nix shell when you `cd` into the project directory:
 
 ```bash
-cd codex-cli
-echo "use flake ../flake.nix#codex-cli" >> .envrc && direnv allow
+cd conseil-cli
+echo "use flake ../flake.nix#conseil-cli" >> .envrc && direnv allow
 ```
 
 ---

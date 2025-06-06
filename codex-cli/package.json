@@ -1,8 +1,9 @@
 {
-  "name": "@openai/codex",
+  "name": "@openai/conseil",
   "version": "0.0.0-dev",
   "license": "Apache-2.0",
   "bin": {
+    "conseil": "bin/conseil.js",
     "codex": "bin/codex.js"
   },
   "type": "module",
