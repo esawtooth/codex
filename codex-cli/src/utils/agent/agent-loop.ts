@@ -32,6 +32,12 @@ import {
 } from "../session.js";
 import { applyPatchToolInstructions } from "./apply-patch.js";
 import { handleExecCommand } from "./handle-exec-command.js";
+import {
+  tmuxCreate,
+  tmuxDelete,
+  tmuxOutput,
+  tmuxSend,
+} from "./tmux.js";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -144,6 +150,67 @@ const getUrlTool: FunctionTool = {
       url: { type: "string", description: "URL to fetch" },
     },
     required: ["url"],
+    additionalProperties: false,
+  },
+};
+
+const tmuxCreateTool: FunctionTool = {
+  type: "function",
+  name: "tmux_create",
+  description: "Create a detached tmux session.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      session: { type: "string", description: "Tmux session name" },
+    },
+    required: ["session"],
+    additionalProperties: false,
+  },
+};
+
+const tmuxDeleteTool: FunctionTool = {
+  type: "function",
+  name: "tmux_delete",
+  description: "Delete a tmux session.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      session: { type: "string", description: "Tmux session name" },
+    },
+    required: ["session"],
+    additionalProperties: false,
+  },
+};
+
+const tmuxOutputTool: FunctionTool = {
+  type: "function",
+  name: "tmux_output",
+  description: "Get the current output of a tmux session.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      session: { type: "string", description: "Tmux session name" },
+    },
+    required: ["session"],
+    additionalProperties: false,
+  },
+};
+
+const tmuxSendTool: FunctionTool = {
+  type: "function",
+  name: "tmux_send",
+  description: "Run a command inside a tmux session.",
+  strict: false,
+  parameters: {
+    type: "object",
+    properties: {
+      session: { type: "string", description: "Tmux session name" },
+      command: { type: "string", description: "Command to run" },
+    },
+    required: ["session", "command"],
     additionalProperties: false,
   },
 };
@@ -513,6 +580,31 @@ export class AgentLoop {
           metadata: { exit_code: 1, duration_seconds: 0 },
         });
       }
+    } else if (name === "tmux_create") {
+      const { output, metadata } = await tmuxCreate(
+        String(jsonArgs.session || ""),
+        this.config,
+      );
+      outputItem.output = JSON.stringify({ output, metadata });
+    } else if (name === "tmux_delete") {
+      const { output, metadata } = await tmuxDelete(
+        String(jsonArgs.session || ""),
+        this.config,
+      );
+      outputItem.output = JSON.stringify({ output, metadata });
+    } else if (name === "tmux_output") {
+      const { output, metadata } = await tmuxOutput(
+        String(jsonArgs.session || ""),
+        this.config,
+      );
+      outputItem.output = JSON.stringify({ output, metadata });
+    } else if (name === "tmux_send") {
+      const { output, metadata } = await tmuxSend(
+        String(jsonArgs.session || ""),
+        String(jsonArgs.command || ""),
+        this.config,
+      );
+      outputItem.output = JSON.stringify({ output, metadata });
     } else if (name === "container.exec" || name === "shell") {
       const {
         outputText,
@@ -687,9 +779,25 @@ export class AgentLoop {
       // `disableResponseStorage === true`.
       let transcriptPrefixLen = 0;
 
-      let tools: Array<Tool> = [shellFunctionTool, webSearchTool, getUrlTool];
+      let tools: Array<Tool> = [
+        shellFunctionTool,
+        webSearchTool,
+        getUrlTool,
+        tmuxCreateTool,
+        tmuxDeleteTool,
+        tmuxOutputTool,
+        tmuxSendTool,
+      ];
       if (this.model.startsWith("codex")) {
-        tools = [localShellTool, webSearchTool, getUrlTool];
+        tools = [
+          localShellTool,
+          webSearchTool,
+          getUrlTool,
+          tmuxCreateTool,
+          tmuxDeleteTool,
+          tmuxOutputTool,
+          tmuxSendTool,
+        ];
       }
 
       const stripInternalFields = (
