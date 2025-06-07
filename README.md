@@ -182,16 +182,9 @@ we're confident in additional safeguards.
 
 ### Platform sandboxing details
 
-The hardening mechanism Conseil uses depends on your OS:
-
-- **macOS 12+** - commands are wrapped with **Apple Seatbelt** (`sandbox-exec`).
-
-  - Everything is placed in a read-only jail except for a small set of
-    writable roots (`$PWD`, `$TMPDIR`, `~/.conseil`, etc.).
-  - Outbound network is allowed by default.
-
-- **Linux** - there is no sandboxing by default. This distribution assumes Codex
-  already runs inside a container, so no additional Docker wrapper is required.
+Conseil now always runs inside its own container. Because of this the CLI no
+longer relies on macOS Seatbelt or Linux Landlock. All commands execute directly
+within the container environment.
 
 ---
 
@@ -304,9 +297,6 @@ corepack enable
 # Install dependencies and build
 pnpm install
 pnpm build
-
-# Linux-only: download prebuilt sandboxing binaries (requires gh and zstd).
-./scripts/install_native_deps.sh
 
 # Get the usage and the options
 node ./dist/cli.js --help
@@ -652,7 +642,7 @@ helper script in `conseil-cli/scripts/` does all the heavy lifting. Inside the
 `conseil-cli` folder run:
 
 ```bash
-# Classic, JS implementation that includes small, native binaries for Linux sandboxing.
+# Classic JS implementation.
 pnpm stage-release
 
 # Optionally specify the temp directory to reuse between runs.
