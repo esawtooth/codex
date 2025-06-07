@@ -5,13 +5,10 @@ import type { ParseEntry } from "shell-quote";
 
 import { process_patch } from "./apply-patch.js";
 import { SandboxType } from "./sandbox/interface.js";
-import { execWithLandlock } from "./sandbox/landlock.js";
-import { execWithSeatbelt } from "./sandbox/macos-seatbelt.js";
 import { exec as rawExec } from "./sandbox/raw-exec.js";
 import { formatCommandForDisplay } from "../../format-command.js";
 import { log } from "../logger/log.js";
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { parse } from "shell-quote";
 import { resolvePathAgainstWorkdir } from "src/approvals.js";
@@ -54,27 +51,9 @@ export function exec(
   };
 
   switch (sandbox) {
-    case SandboxType.NONE: {
-      // SandboxType.NONE uses the raw exec implementation.
+    case SandboxType.NONE:
+    default: {
       return rawExec(cmd, opts, config, abortSignal);
-    }
-    case SandboxType.MACOS_SEATBELT: {
-      // Merge default writable roots with any user-specified ones.
-      const writableRoots = [
-        process.cwd(),
-        os.tmpdir(),
-        ...additionalWritableRoots,
-      ];
-      return execWithSeatbelt(cmd, opts, writableRoots, config, abortSignal);
-    }
-    case SandboxType.LINUX_LANDLOCK: {
-      return execWithLandlock(
-        cmd,
-        opts,
-        additionalWritableRoots,
-        config,
-        abortSignal,
-      );
     }
   }
 }
